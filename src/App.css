@@ -28,6 +28,17 @@
   color: #61dafb;
 }
 
+
+
+.search-icon{
+  top: 0;
+  right: 0;
+  padding: 6px;
+  color: gray;
+  font-weight: bold;
+  font-size: 19px;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
