@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-function Users({ data, sort }) {
+function Users({ data, sort, deleteUser, updateUser }) {
 
     const [nameOrder, setNameOrder] = useState('');
 
@@ -43,6 +43,7 @@ function Users({ data, sort }) {
                         <th scope="col">phone</th>
                         <th scope="col">email</th> 
                         <th scope="col">username</th> 
+                        <th scope="col">action</th> 
                     </tr>
                 </thead>
 
@@ -56,6 +57,15 @@ function Users({ data, sort }) {
                                     <td>{user?.phone}</td>
                                     <td>{user?.email}</td>
                                     <td>{user?.username}</td>
+                                    <td>
+                                        <button className='btn  text-danger p-0' onClick={()=>{
+                                            deleteUser(user.id)
+                                        }}><i className="bi bi-trash "></i></button>
+
+                                        <button className='btn text-primary  p-0 ms-2' onClick={()=>{
+                                            updateUser(user)
+                                        }}> <i className="bi bi-pencil-square"></i></button>
+                                    </td>
                                     
                                 </tr>
                             )

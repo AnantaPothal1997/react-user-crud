@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
-function UserForm({updateUser}) {
+function UserForm({updateUser, user, isEdit}) {
     const [userForm, setUserForm] = useState({
         name:'',
         phone:'',
         email:'',
-        userName:'',
+        username:'',
     });
 
    const  updateUserForm = (fieldName, fieldVal)=>{
@@ -16,6 +16,16 @@ function UserForm({updateUser}) {
 
     }
 
+    useEffect(()=>{
+        console.log('use effect called');
+        //set user form value if it is 
+        if(isEdit){
+            //set userformfield value
+            setUserForm({
+                ...user
+            })
+        }
+    }, [user])
     const addUserForm = ()=>{
         // console.log(userForm);
         updateUser(userForm);
@@ -24,7 +34,7 @@ function UserForm({updateUser}) {
         name:'',
         phone:'',
         email:'',
-        userName:''
+        username:''
         })
     }
   return (
@@ -52,13 +62,13 @@ function UserForm({updateUser}) {
             </div>
             <div>
                 <label>userName</label>
-                <input type='text' value={userForm.userName} className='form-control' onChange={(e)=>{
-                    updateUserForm('userName', e.target.value)
+                <input type='text' value={userForm.username} className='form-control' onChange={(e)=>{
+                    updateUserForm('username', e.target.value)
                 }}></input>
             </div>
 
             <div className='text-end'>
-            <button className='btn btn-primary mt-2' onClick={addUserForm}> Add User</button>
+            <button className='btn btn-primary mt-2' onClick={addUserForm}>{isEdit ? ' Update User':'Add User'}</button>
             </div>
             
         </form>

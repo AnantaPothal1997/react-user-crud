@@ -6,11 +6,19 @@ import UserForm from './components/UserForm';
 
 import axios from 'axios'
 import UserSearch from './UserSearch';
+import api from './service/api';
+
+
 
 function App() {
 
   let [originalUsers, setOriginalUser] = useState([]);
   const [users, setUsers] = useState([]);
+  const [addUserOpened, setAddUserOpened] = useState(false)
+
+  const [selectedUser, setSelectedUser] = useState({});
+  const [isUserEdit, setIsUserEdit] = useState(false);
+
   // const [apiLoaded, setApiLoaded] = useState(false)
 
 
@@ -36,7 +44,28 @@ function App() {
   const updateUserList = (user)=>{
     console.log(user);
     try{
-      axios.post('https://jsonplaceholder.typicode.com/users',user).then(res=>{
+      if(isUserEdit){
+        //make api call and update the data
+        api.put(`/users/${user.id}`, user).then(res=>{
+          //update the updated data to the user list
+          alert('User updated succesfully')
+          let newUsers = users.map(user=>{
+            if(user.id == res.data.id){
+              return res.data
+            }else{
+              return user
+            }
+          });
+          setUsers(newUsers)
+          console.log();
+        }).catch(e=>{
+          console.log(e);
+        })
+        
+        setIsUserEdit(false);
+        setAddUserOpened(false);
+      }else{
+        axios.post('https://jsonplaceholder.typicode.com/users',user).then(res=>{
         //update user to the userState
         if(res.status == 201){
          
@@ -47,6 +76,8 @@ function App() {
         }
        
       })
+      }
+      
     }catch(e){
       console.log(e.message);
     }
@@ -98,9 +129,38 @@ function App() {
    
   }
 
-  const [addUserOpened, setAddUserOpened] = useState(false)
-
   const handleAddNewUser = ()=>{
+    setAddUserOpened(true);
+  }
+
+  const handleDelete = (data)=>{
+    try{
+      api.delete(`/users/${data}`).then(res=>{
+        if(res.status == 200){
+          //data deleted succesfully so fetch it from the db in real case 
+          // we just delete it from user list
+          let newUsers = users.filter((user)=> user.id != data );
+
+          setUsers([...newUsers]);
+          alert('user delted succesfully')
+        }
+      })
+      //delete the user from the 
+    }catch(e){
+      console.log(e.message);
+    }
+   
+
+  }
+
+  const handleUpdate = (user)=>{
+    //set selected user
+    setSelectedUser({...user});
+
+    //set useEdit
+    setIsUserEdit(true)
+
+    //show the userfor
     setAddUserOpened(true);
   }
 
@@ -120,12 +180,12 @@ function App() {
             </div>
           </div>
 
-          <Users data={users} sort={sortByFieldName} />
+          <Users data={users} sort={sortByFieldName} deleteUser = {handleDelete} updateUser = {handleUpdate}/>
         </div>
         <div className='col-md-4 mt-5'>
           {
             addUserOpened &&
-            <UserForm updateUser={updateUserList} showForm = {addUserOpened}/>
+            <UserForm updateUser={updateUserList} user = {selectedUser} isEdit = {isUserEdit}/>
           }
           
         </div>
