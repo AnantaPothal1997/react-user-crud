@@ -8,6 +8,9 @@ import axios from 'axios'
 import UserSearch from './UserSearch';
 import api from './service/api';
 
+import {useSelector, useDispatch} from 'react-redux'
+import { FETCH_USER_REQUESTED, FETCH_USER_SUCCESS, addUser, fetchUserError, fetchUserRequested, fetchUserSuccess } from './service/actions/user-actions';
+import Test from './Test';
 
 
 function App() {
@@ -21,22 +24,25 @@ function App() {
 
   // const [apiLoaded, setApiLoaded] = useState(false)
 
+ 
+  const [loading, loaded, user, error]  = useSelector((state)=> [state.loading, state.loaded, state.user, state.error])
+
+  const dispatch = useDispatch();
 
   //fetch users list
   useEffect(()=>{
-    // fetch('https://jsonplaceholder.typicode.com/users')
-    //   .then(response => response.json())
-    //   .then(usersList => {
-    //     setUsers(usersList);
-    //   })
-    // console.log("calling");
-
+   
+    dispatch(fetchUserRequested());
     axios.get('https://jsonplaceholder.typicode.com/users').then((res)=>{
       // console.log(res.data);
       setUsers(res.data)
       setOriginalUser(res.data)
+      dispatch(fetchUserSuccess(res.data));
       // setApiLoaded(true)
-    }, [originalUsers])
+    }, [originalUsers]).catch(e=>{
+      console.log(e.message);
+      dispatch(fetchUserError(e.message))
+    })
 
   
   },[]) //useeffect hook end
@@ -57,6 +63,9 @@ function App() {
             }
           });
           setUsers(newUsers)
+
+          //dispatch new use add action
+          dispatch(addUser(newUsers))
           console.log();
         }).catch(e=>{
           console.log(e);
@@ -70,6 +79,8 @@ function App() {
         if(res.status == 201){
          
           setUsers([...users, res.data]);
+          dispatch(addUser(res.data))
+
           //hide the user add form again
           setAddUserOpened(false);
           alert('User added succefully');
@@ -164,6 +175,21 @@ function App() {
     setAddUserOpened(true);
   }
 
+  if(loading){
+    return (<>
+      <div className='d-flex justify-content-center flex-column text-center' style={{ height: '100vh' }}>
+        <div className='text-center' >
+          <div className="spinner-grow spinner-grow-sm" role="status">
+          </div>
+          <div className="spinner-grow spinner-grow-sm ms-1" role="status">
+          </div>
+          <div className="spinner-grow spinner-grow-sm ms-1" role="status">
+          </div>
+        </div>
+      </div>
+    </>)
+  }
+
   return (
     <div >
       <div className='row ms-1' style={{ width: '99%' }}>
@@ -180,7 +206,7 @@ function App() {
             </div>
           </div>
 
-          <Users data={users} sort={sortByFieldName} deleteUser = {handleDelete} updateUser = {handleUpdate}/>
+          <Users data={user} sort={sortByFieldName} deleteUser = {handleDelete} updateUser = {handleUpdate}/>
         </div>
         <div className='col-md-4 mt-5'>
           {
@@ -190,6 +216,8 @@ function App() {
           
         </div>
       </div>
+
+      <Test></Test>
 
     </div>
   );
